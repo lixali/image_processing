@@ -1,5 +1,8 @@
-Currently 1, 2 ,3a, 3b, 3c, 3d are basically finished. The runpipeline executable file is generated in Windows and it is .exe file. To run it in Macbook or Linux, the runpipeline.cpp file can be re-compiled (there should not be any error when re-compiling in Macbook or Linux; it should only take seconds). house_1.ppm is a "P6" ppm image file for testing purpose. The runpipeline.cpp supports both P6 and P3 headers. 
 
+Currently 1, 2 ,3a, 3b, 3c, 3d are basically finished. The runpipeline executable file is generated in Windows and it is .exe file. To run it in Macbook or Linux, the runpipeline.cpp file can be re-compiled (there should not be any error when re-compiling in Macbook or Linux; it should only take seconds). house_1.ppm is a "P6" ppm image file for testing purpose. The runpipeline.cpp supports both P6 and P3 headers. And when reading the .cpp file, please search for "as required" keywords because important lines of codes' comments start with "as required".
+
+
+####################################################################################
 The command to run the "runpipeline" executable is as followed:
 
 ./runpipeline -i house_1.ppm -o house_1_out.ppm -grey 
