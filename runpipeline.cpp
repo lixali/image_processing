@@ -27,7 +27,7 @@ class ImagePPM { // only class that declare image manipulation functions
         void horizonFlip(); // flip from left to right
         void rotateEdage(int tR, int tC, int dR, int dC);
         void rotate_90(); // rotate 90 degree clock wise
-        void greyScale(); // convert to grey scale
+        void grayScale(); // convert to gray scale
         void scaleSize(int height, int width); // scale image 
 
         void deleteImage();
@@ -210,21 +210,21 @@ void ImagePPM::rotate_90() {
     
 }
 
-//  covert a picture to grey scale
-void ImagePPM::greyScale() {
-    const float r = 0.299f; // as required in the google doc, these 3 are the grey scale factor 
+//  covert a picture to gray scale
+void ImagePPM::grayScale() {
+    const float r = 0.299f; // as required in the google doc, these 3 are the gray scale factor 
     const float g = 0.587f;
     const float b = 0.114f;
 
-    float greyscaleValue;
+    float grayscaleValue;
 
     for(int i = 0; i < height; i++) {
         for(int j=0; j<width; j++) {
 
-            greyscaleValue = image[i][j].r*r + image[i][j].g*g + image[i][j].b*b;
-            image[i][j].r = greyscaleValue;
-            image[i][j].g = greyscaleValue;
-            image[i][j].b = greyscaleValue;
+            grayscaleValue = image[i][j].r*r + image[i][j].g*g + image[i][j].b*b;
+            image[i][j].r = grayscaleValue;
+            image[i][j].g = grayscaleValue;
+            image[i][j].b = grayscaleValue;
         }
     }
 }
@@ -310,9 +310,9 @@ int main(int argc, char *argv[], char **envp) {
             if(argc>=6) {
                 std::string sinput3 (argv[5]);
 
-                if(sinput3 == "-grey") { // as required in 3a in google doc, convert to greyscale; 
-                    printf("grey \n");
-                    ins2.greyScale();
+                if(sinput3 == "-gray") { // as required in 3a in google doc, convert to grayscale; 
+                    printf("gray \n");
+                    ins2.grayScale();
                 } else if (sinput3 == "-flip") { // as required in 3b in google doc, flip image; 
                     printf("flip \n");
                     ins2.horizonFlip();
