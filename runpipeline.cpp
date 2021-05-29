@@ -54,7 +54,7 @@ ImagePPM::ImagePPM(int height, int width) {
 
 // save user input to a new ppm file
 void ImagePPM::saveImage(std::string name_file) {
-    ofstream output(name_file, ios::binary);
+    ofstream output(name_file, ios::binary); // use ofstream to write to image
 
     if(output.is_open()) {
         output << version << endl;
@@ -62,7 +62,7 @@ void ImagePPM::saveImage(std::string name_file) {
         output << height << endl;
         output << 255 << endl;
 
-        if(version == "P3") {
+        if(version == "P3") { 
             for(int i = 0; i < height; i++) {
                 for (int j = 0; j < width ; j++) {
                     output << (int) image[i][j].r << ' ';
@@ -83,7 +83,7 @@ void ImagePPM::saveImage(std::string name_file) {
 
 // read user input ppm file; return depth, width for future scaling usage
 int * ImagePPM::readImage(string name_file) {
-    ifstream input(name_file, ios::binary);
+    ifstream input(name_file, ios::binary); // use ifstream to read an image
     int count = 0;
     static int dimensions[2];
 
@@ -98,11 +98,11 @@ int * ImagePPM::readImage(string name_file) {
         input >> color;
         input.read(ver, 1);
 
-        printf("image height is %u \n", height); // as requried in 1, image dimension and bit depth are printed out 
+        printf("image height is %u \n", height); // as required in 1, image dimension are printed out 
         printf("image width is %u \n", width);
 
-        if (color == 255) {
-            printf("image bit depth is %u \n", 8);
+        if (color == 255) {                     // // as required in 1, bit depth is printed out 
+            printf("image bit depth is %u \n", 8); 
         } else if (color == 15) {
             printf("image bit depth is %u \n", 4);
         } else if (color == 6635) {
@@ -151,6 +151,7 @@ int * ImagePPM::readImage(string name_file) {
     return dimensions;
 }
 
+// create a new ppm image
 void ImagePPM::createImage() {
     if(image != nullptr) {
         deleteImage();
@@ -180,6 +181,7 @@ void ImagePPM::horizonFlip() {
     }
 }
 
+// rotate edge is to be called by rotate_90 to rotate 90 degree
 void ImagePPM::rotateEdage(int tR, int tC, int dR, int dC) {
 
     RGB tmp;
@@ -210,7 +212,7 @@ void ImagePPM::rotate_90() {
 
 //  covert a picture to grey scale
 void ImagePPM::greyScale() {
-    const float r = 0.299f; // these 3 are the grey scale factor as specified in the google doc
+    const float r = 0.299f; // as required in the google doc, these 3 are the grey scale factor 
     const float g = 0.587f;
     const float b = 0.114f;
 
@@ -269,8 +271,8 @@ void ImagePPM::deleteImage() {
 // main program begins here 
 int main(int argc, char *argv[], char **envp) {
 
-    ImagePPM ins1(400, 950);
-    ImagePPM ins2;
+    ImagePPM ins1(400, 950); // insstance1(ins1) is only for testing and debuggig purpose to make sure that all the functions are working
+    ImagePPM ins2;           // instance2(ins2) is used to generate user output
     std::string outFile (argv[4]);;
     int * dimen;
 
@@ -278,13 +280,13 @@ int main(int argc, char *argv[], char **envp) {
 
         std::string sinput2 (argv[3]);
 
-        if (sinput2 == "-o") {  //as reqired in 2 in google doc , look for -o output file name
+        if (sinput2 == "-o") {  //as required in 2 in google doc , look for -o output file name
              std::string outFile (argv[4]);
         } else {
              std::string outFile (argv[4]);
         }
     } else {
-        std::string outFile ("Result.ppm");
+        std::string outFile ("default_output.ppm");
     }
 
     for(int i=0; i < 400; i ++)
@@ -293,7 +295,7 @@ int main(int argc, char *argv[], char **envp) {
             ins1.image[i][j].g = 168;
             ins1.image[i][j].b = 82;
         }
-    ins1.setVersion("P3");  // tetting the setVersion and saveImage methods with above radom rgb values 
+    ins1.setVersion("P3");  // setting the setVersion and saveImage methods with above radom rgb values 
     ins1.saveImage(outFile);   
 
 
@@ -303,21 +305,21 @@ int main(int argc, char *argv[], char **envp) {
 
         std::string sinput1 (argv[1]);
         
-        if(sinput1 == "-i") {  // as reqired in 1 in google doc, looking for -i input ppm file
+        if(sinput1 == "-i") {  // as required in 1 in google doc, looking for -i input ppm file
 
             if(argc>=6) {
                 std::string sinput3 (argv[5]);
 
-                if(sinput3 == "-grey") { // as requred in 3a in google doc, convert to greyscale; 
-                    printf("enter \n");
+                if(sinput3 == "-grey") { // as required in 3a in google doc, convert to greyscale; 
+                    printf("grey \n");
                     ins2.greyScale();
-                } else if (sinput3 == "-flip") { // as requred in 3b in google doc, flip image; 
+                } else if (sinput3 == "-flip") { // as required in 3b in google doc, flip image; 
                     printf("flip \n");
                     ins2.horizonFlip();
-                } else if (sinput3 == "-rot90") { // as requred in 3c in google doc, rotate image by 90 degree; 
+                } else if (sinput3 == "-rot90") { // as required in 3c in google doc, rotate image by 90 degree; 
                     printf("rotate \n");
                     ins2.rotate_90();
-                } else if (sinput3 == "-scale") { // as requred in 3d in google doc, scale image by 0.25; 
+                } else if (sinput3 == "-scale") { // as required in 3d in google doc, scale image by 0.25; 
                     int newDepth = *(dimen);
                     int newWidth = *(dimen+1);
                     printf("the new dimension is %u x %u \n", newDepth/4, newWidth/4); //
