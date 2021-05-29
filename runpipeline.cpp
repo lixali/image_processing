@@ -10,7 +10,7 @@ class ImagePPM { // only class that declare image manipulation functions
         ImagePPM(int height, int width);
         ImagePPM() {}
 
-        struct RGB {
+        struct RGB { // struct for reb, green, blue colors
             unsigned char r;
             unsigned char g;
             unsigned char b;
@@ -22,14 +22,16 @@ class ImagePPM { // only class that declare image manipulation functions
         void setVersion(string version) {this->version = version;}
 
         void saveImage(std::string name_file);
-        void readImage(std::string name_file);
+        int * readImage(std::string name_file);
 
         void horizonFlip(); // flip from left to right
+        void rotateEdage(int tR, int tC, int dR, int dC);
         void rotate_90(); // rotate 90 degree clock wise
         void greyScale(); // convert to grey scale
         void scaleSize(int height, int width); // scale image 
 
         void deleteImage();
+
 
         RGB **image = nullptr;
 
@@ -37,7 +39,8 @@ class ImagePPM { // only class that declare image manipulation functions
     private:
         int height = 0;
         int  width = 0;
-        string version = "P6";
+        string version = "P6"; // by default, it is processing P6 ppm file; 
+                               // it can also process P3 ppm file by using the following setVersion function
 
         void createImage();
     
@@ -49,7 +52,7 @@ ImagePPM::ImagePPM(int height, int width) {
     createImage();
 }
 
-
+// save user input to a new ppm file
 void ImagePPM::saveImage(std::string name_file) {
     ofstream output(name_file, ios::binary);
 
@@ -78,9 +81,11 @@ void ImagePPM::saveImage(std::string name_file) {
     }
 }
 
-
-void ImagePPM::readImage(string name_file) {
+// read user input ppm file; return depth, width for future scaling usage
+int * ImagePPM::readImage(string name_file) {
     ifstream input(name_file, ios::binary);
+    int count = 0;
+    static int dimensions[2];
 
     if(input.is_open()) {
         int color;
@@ -92,13 +97,23 @@ void ImagePPM::readImage(string name_file) {
         input >> height;
         input >> color;
         input.read(ver, 1);
-        //printf("inside read version is %s \n", version);
+
+        printf("image height is %u \n", height); // as requried in 1, image dimension and bit depth are printed out 
+        printf("image width is %u \n", width);
+
+        if (color == 255) {
+            printf("image bit depth is %u \n", 8);
+        } else if (color == 15) {
+            printf("image bit depth is %u \n", 4);
+        } else if (color == 6635) {
+            printf("image bit depth is %u \n", 16);
+        }
 
         createImage();
 
         int box;
 
-        if(version == "P3"){
+        if(version == "P3"){ // when it is P3 header
             for(int i= 0; i < height; i++) 
                 for (int j = 0; i< width; j++) {
                     input >> box;
@@ -109,17 +124,31 @@ void ImagePPM::readImage(string name_file) {
 
                     input >> box;
                     image[i][j].b = box;
+
+                    count += 1;
                 }
-        } else {
+        } else { // when it is P6 header
 
             for(int i=0; i < height; i++) 
                 for(int j = 0; j < width; j++) {
                     input.read((char*) &image[i][j], sizeof(RGB));
+                    count += 1;
                 }
+        }
+
+        if (input.eof()) { // as required by 1 , it validate the pixel number matches by looking at if it reaches the end of file
+            printf("it is  not reaching the end of if file; there is error in image dimension \n");
+        } else {
+            printf("it is reaching the end of if file; there is no error in image dimension \n");
         }
 
         input.close();
     }
+
+    dimensions[0] = height;
+    dimensions[1] = width;
+
+    return dimensions;
 }
 
 void ImagePPM::createImage() {
@@ -151,17 +180,35 @@ void ImagePPM::horizonFlip() {
     }
 }
 
-// this is a function to rotate an image 90 degree clock wise
-void ImagePPM::rotate_90() {
+void ImagePPM::rotateEdage(int tR, int tC, int dR, int dC) {
 
-    for(int i =0; i < height/2; i++){
-        for(int j=0; j < width; j++) {
-            swap(image[i][j], image[height-1-i][j]);
-        }
+    RGB tmp;
+
+    int times = dR - tR;
+    for (int i = 0; i != times; ++i) {
+        tmp = image[tR][tC + i];
+        image[tR][tC + i] = image[dR - i][tC];
+        image[dR - i][tC] = image[dR][dC - i];
+        image[dR][dC - i] = image[tR + i][dC];
+        image[tR + i][dC] = tmp;
     }
 }
 
-// this is a function to covert a picture to grey scale
+//  rotate an image 90 degree clock wise
+void ImagePPM::rotate_90() {
+
+    int tR = 0;
+    int tC = 0;
+    int dR = height -1;
+    int dC = width - 1;
+
+    while (tR < dR) {
+        ImagePPM::rotateEdage(tR++, tC++, dR--, dC--);
+    }
+    
+}
+
+//  covert a picture to grey scale
 void ImagePPM::greyScale() {
     const float r = 0.299f; // these 3 are the grey scale factor as specified in the google doc
     const float g = 0.587f;
@@ -180,19 +227,7 @@ void ImagePPM::greyScale() {
     }
 }
 
-
-void ImagePPM::deleteImage() {
-
-    if(image != nullptr){
-        for(int i =0; i<height; i++) {
-            delete image[i];
-        }
-
-        delete image;
-    }
-}
-
-
+// scale an image ; height and width defined by user
 void ImagePPM::scaleSize(int height, int width) {
 
     RGB **image_resized = new RGB*[height];
@@ -220,18 +255,30 @@ void ImagePPM::scaleSize(int height, int width) {
     this->width = width;
 }
 
+// delete image 
+void ImagePPM::deleteImage() {
+    if(image != nullptr){
+        for(int i =0; i<height; i++) {
+            delete image[i];
+        }
+        delete image;
+    }
+}
+
+
 // main program begins here 
 int main(int argc, char *argv[], char **envp) {
 
     ImagePPM ins1(400, 950);
     ImagePPM ins2;
     std::string outFile (argv[4]);;
+    int * dimen;
 
     if (argc>=5) {
 
         std::string sinput2 (argv[3]);
 
-        if (sinput2 == "-o") {
+        if (sinput2 == "-o") {  //as reqired in 2 in google doc , look for -o output file name
              std::string outFile (argv[4]);
         } else {
              std::string outFile (argv[4]);
@@ -250,46 +297,38 @@ int main(int argc, char *argv[], char **envp) {
     ins1.saveImage(outFile);   
 
 
-    ins2.readImage(argv[2]);
+    dimen = ins2.readImage(argv[2]);
 
    if(argc>=2) {
 
         std::string sinput1 (argv[1]);
         
-        if(sinput1 == "-i") {  // looking for -i
-
-            //printf("nothing2");
+        if(sinput1 == "-i") {  // as reqired in 1 in google doc, looking for -i input ppm file
 
             if(argc>=6) {
                 std::string sinput3 (argv[5]);
 
-                if(sinput3 == "-grey") {
-                    printf("enter");
+                if(sinput3 == "-grey") { // as requred in 3a in google doc, convert to greyscale; 
+                    printf("enter \n");
                     ins2.greyScale();
-                } else if (sinput3 == "-flip") {
-                    printf("flip");
+                } else if (sinput3 == "-flip") { // as requred in 3b in google doc, flip image; 
+                    printf("flip \n");
                     ins2.horizonFlip();
-                } else if (sinput3 == "-rot90") {
-                    printf("rotate");
+                } else if (sinput3 == "-rot90") { // as requred in 3c in google doc, rotate image by 90 degree; 
+                    printf("rotate \n");
                     ins2.rotate_90();
-                } else if (sinput3 == "-scale") {
-                    printf("scale");
-                    ins2.scaleSize(242, 384);
+                } else if (sinput3 == "-scale") { // as requred in 3d in google doc, scale image by 0.25; 
+                    int newDepth = *(dimen);
+                    int newWidth = *(dimen+1);
+                    printf("the new dimension is %u x %u \n", newDepth/4, newWidth/4); //
+                    ins2.scaleSize(round(newDepth/4), round(newWidth/4));
                 }
             }
-
-
-
         } else {
             printf("need to specify userinput; please refer to github readme file");
         }
-
-
     }
-
     ins2.saveImage(outFile);
-
-
 
 }
 
