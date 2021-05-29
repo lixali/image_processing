@@ -4,6 +4,8 @@ Currently 1, 2 ,3a, 3b, 3c, 3d are basically finished. The runpipeline executabl
 
 
 ####################################################################################
+
+
 The command to run the "runpipeline" executable is as followed:
 
 ./runpipeline -i house_1.ppm -o house_1_out.ppm -gray 
